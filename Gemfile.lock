@@ -1,0 +1,17 @@
+PATH
+  remote: .
+  specs:
+    kakaxi (0.0.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  kakaxi!
+
+BUNDLED WITH
+   1.15.3
