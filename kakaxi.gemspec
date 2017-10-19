@@ -1,20 +1,15 @@
-files = [
-  'lib/kakaxi.rb',
-  'lib/exception/invalid_credentials.rb',
-  'lib/kakaxi/farm.rb', 'lib/kakaxi/device.rb', 'lib/kakaxi/client.rb']
-
-data_file_names = ['base_data', 'data', 'humidity', 'rainfall', 'solar_radiation', 'temperature', 'timelapse']
-data_file_names.each { |file| files << "lib/kakaxi/data/#{file}.rb" } 
+lib = File.expand_path('../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |s|
   s.name          = 'kakaxi'
-  s.version       = '0.0.0'
+  s.version       = '0.0.1'
   s.date          = '2017-09-10'
   s.summary       = 'Library for calling kakaxi api by ruby'
   s.description   = 'Make it easy to use Kakaxi API by ruby'
   s.authors       = ['Naggi Goishi']
   s.email         = 'naggi@kakaxi.jp'
-  s.files         = files
+  s.files       = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features|pkg)/}) }
   s.homepage      = 'https://kakaxi-data.me/doc#v1-get'
   s.license       = 'MIT'
 end

@@ -7,7 +7,9 @@ module Kakaxi
   class Client
     COMMON_HEADER = { 'Content-Type' => 'application/json' }
     BASE_URL = 'https://kakaxi-data.me/api/v1/'
-    attr_reader :current_device, :temps, :temp_data, :token, :farm, :devices, :humidities, :timelapses, :solar_radiations, :rainfalls
+    attr_reader :current_device, :temps, :temp_data, :token,
+                :farm, :devices, :humidities, :timelapses, :solar_radiations,
+                :rainfalls, :interval_photos, :interval_photo_data
 
     def initialize(email, password)
       @email = email
@@ -88,6 +90,22 @@ module Kakaxi
         )
       end
       @timelapse_data = Struct::TimelapseMetaData.new(@timelapses.length, @current_device.id)
+    end
+
+    def load_interval_photos(pagination: false, start_date: Date.today, end_date: Date.today + 7)
+      uri = URI.parse(BASE_URL + "kakaxi_devices/#{@current_device.id}/interval_photos")
+      params = { pagination: false, start_date: start_date, end_date: end_date }
+      uri.query = URI.encode_www_form(params)
+      interval_photos = get(uri)
+      Struct.new('IntervalPhotoMetaData', :size, :pagination, :start_date, :end_date)
+      @interval_photos = interval_photos.map do |photo|
+        Kakaxi::IntervalPhoto.new(
+          id: photo['id'],
+          url: photo['url'],
+          taken_at: photo['takenAt']
+          )
+      end
+      @interval_photo_data = Struct::IntervalPhotoMetaData.new(@interval_photos.size, pagination, start_date, end_date)
     end
 
     private
