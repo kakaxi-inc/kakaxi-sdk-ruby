@@ -1,5 +1,5 @@
 module Kakaxi
-  class Temperature
+  class IntervalPhoto
     attr_reader :id, :url, :taken_at
 
     def initialize(id: nil, url: nil, taken_at: nil)

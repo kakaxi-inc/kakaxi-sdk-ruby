@@ -14,10 +14,6 @@ module Kakaxi
     def initialize(email, password)
       @email = email
       @password = password
-      @token = get_token
-      @farm = get_farm
-      @devices = get_devices
-      @current_device = @devices[0]
     end
 
     def set_current_device(index: 0, id: nil, name: nil)
@@ -26,8 +22,21 @@ module Kakaxi
       @current_device = @devices.find { |device| device.name == name } unless name.nil?
     end
 
+    def load_token
+      @token = get_token
+    end
+
+    def load_farm
+      @farm = get_farm
+    end
+
+    def load_devices
+      @devices = get_devices
+      @current_device = @devices[0]
+    end
+
     def load_temps(days: 5, unit: 'celsius')
-      uri = URI.parse(BASE_URL + "kakaxi_devices/#{current_device.id}/indicators/temperature?days=#{days}&unit=#{unit}")
+      uri = URI.parse(BASE_URL + "kakaxi_devices/#{@current_device.id}/indicators/temperature?days=#{days}&unit=#{unit}")
       temps = get(uri)['data']
       Struct.new('TempMetaData', :size, :unit, :device_id)
       @temps = temps.map do |temp|
@@ -37,7 +46,7 @@ module Kakaxi
     end
 
     def load_humidities(days: 5)
-      uri = URI.parse(BASE_URL + "kakaxi_devices/#{current_device.id}/indicators/humidity?days=#{days}")
+      uri = URI.parse(BASE_URL + "kakaxi_devices/#{@current_device.id}/indicators/humidity?days=#{days}")
       humidities = get(uri)['data']
       Struct.new('HumidityMetaData', :size, :device_id)
       @humidities = humidities.map do |humidity|
@@ -113,7 +122,7 @@ module Kakaxi
       uri = URI.parse(BASE_URL + 'oauth/token')
       params = { username: @email, password: @password, grant_type: 'password', scope: 'all' }
       response = post(uri, params)
-      raise InvalidCredentials.new(@email, @password) if response.code == '404'
+      raise InvalidCredentialsError.new(@email, @password) if response.code == '404'
       JSON.parse(response.body)['access_token']
     end
 
